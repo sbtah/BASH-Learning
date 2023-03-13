@@ -6,26 +6,33 @@
 
 if [[ "${UID}" -eq 0 ]]
 then
-    read -p 'Enter a username to create: ' USER_NAME
-    read -p 'Enter a name of the person who is account is for: ' COMMENT
-    read -p 'Enter a onetime password for the account: ' PASSWORD
+    if [[ "${#}" -gt 0 ]]
+    then
+    USER_NAME="${1}"
+    shift
+    COMMENT="${@}"
+    PASSWORD=$( date +%s%N${RANDOM}${RANDOM}${RANDOM} | sha256sum | head -c 16)
     useradd -c "${COMMENT}" -m ${USER_NAME}
-    if [[ "${?}" -eq 0 ]]
-        then
-            echo "${USER_NAME}:${PASSWORD}" | chpasswd
-            if [[ "${?}" -eq 0 ]]
+        if [[ "${?}" -eq 0 ]]
             then
-                echo "User with login: ${USER_NAME} and password: ${PASSWORD} was created for host: $(uname -n)"
-                passwd -e ${USER_NAME}
-                exit 0
+                echo "${USER_NAME}:${PASSWORD}" | chpasswd
+                if [[ "${?}" -eq 0 ]]
+                then
+                    echo "User with login: ${USER_NAME} and password: ${PASSWORD} was created for host: $(uname -n)"
+                    passwd -e ${USER_NAME}
+                    exit 0
+                else
+                    echo "Creation of user failed at chpasswd!"
+                    exit 1
+                fi
             else
-                echo "Creation of user failed at chpasswd!"
+                echo 'Creation of user failed!'
                 exit 1
             fi
-        else
-            echo 'Creation of user failed!'
-            exit 1
-        fi
+    else
+        echo "Usage: ${0} USER_NAME [FULL_NAME]"
+        exit 1
+    fi
 else
     echo 'You are not a superuser. Please run with sudo or as a root.'
     exit 1  
