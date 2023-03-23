@@ -1,0 +1,6 @@
+This ensures that bash will be used with at, instead of shell.
+
+at now+1 minutes <<< "bash at_script.sh"
+at 9am 12/23/2022
+at 9am 23.12.2022
+at 9am tomorrow
