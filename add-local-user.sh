@@ -12,14 +12,14 @@ then
     shift
     COMMENT="$@"
     PASSWORD=$( date +%s%N${RANDOM}${RANDOM}${RANDOM} | sha256sum | head -c 16)
-    useradd -c "${COMMENT}" -m "${USER_NAME}"
+    useradd -c "${COMMENT}" -m "${USER_NAME}" &> /dev/null
         if [[ "${?}" -eq 0 ]]
             then
-                echo "${USER_NAME}:${PASSWORD}" | chpasswd
+                echo "${USER_NAME}:${PASSWORD}" | chpasswd &> /dev/null
                 if [[ "${?}" -eq 0 ]]
                 then
                     echo "User with login: ${USER_NAME} and password: ${PASSWORD} was created for host: $(uname -n)"
-                    passwd -e "${USER_NAME}"
+                    passwd -e "${USER_NAME}" &> /dev/null
                     exit 0
                 else
                     echo "Creation of user failed at chpasswd!" 1>&2
