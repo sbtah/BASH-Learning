@@ -16,18 +16,36 @@ usage() {
 }
 
 
-archive_user_home() {
-  archive_file="$1-home-$(date +%s).tar.gz"
-  if [[ -d "${archive_directory}" ]]; then
-    tar -czvf "$archive_file" "/home/${1}/"
-    mv "${archive_file}" "${archive_directory}"
-  else
-    if [[ $(mkdir -p archive) -eq 0 ]]; then
-      tar -czf "$archive_file" "/home/${1}/" &> /dev/null
-      mv "${archive_file}" "${archive_directory}/${archive_file}"
+check_archive() {
+  if [[ ! -d "${archive_directory}" ]]; then
+    if [[ $(mkdir -p "${archive_directory}") ]];then
+      echo "Archive directory created successfully."
+      return 0
     else
-      echo "The archive directory could not be created." 1>&2
-      exit 1
+      echo "Creation of archive directory failed" 1>&2
+      return 1
+    fi
+  else
+    echo "Archive directory exists, passing."
+    return 0
+  fi
+}
+
+
+
+archive_user_home() {
+  check_archive
+  archive_name="$1-home-$(date +%s).tar.gz"
+  archive_path=${archive_directory}/${archive_name}
+
+  if [[ -d "/home/${1}/" ]]; then
+    echo "Creating archive for ${1}"
+    if [[ $(tar -czf "${archive_path}" "/home/${1}/" &> /dev/null) ]]; then
+      echo "Archive created successfully."
+      return 0
+    else
+      echo "Failed while creating archive for user: ${1}" 1>&2
+      return 1
     fi
   fi
 }
