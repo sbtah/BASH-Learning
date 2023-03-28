@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# This script disables or deletes and/or archives users on local system.
 
 delete=false
 remove_home=false
@@ -89,7 +90,7 @@ disable_user() {
       chage -E 0 "${1}"
     fi
   else
-    echo "Sorry you can't delete system account of UID: ${user_id}" 1>&2
+    echo "Sorry you can't disable system account of UID: ${user_id}" 1>&2
     return 1
   fi
 }
